@@ -71,8 +71,8 @@ public class App {
 
     private static List<String> getCaptionsStream(List<Job> jobs) {
         return jobs.stream()
-                .filter(App::isJuniorJob) // this is static method
-                .map(Job::getCaption) // this is instance method
+                .filter(App::isJuniorJob) // this is static method which accepts a Job param
+                .map(Job::getCaption) // this is instance method which doesn't accept a param
                 // syntax is the same, because in the case of the instance method
                 // it's assumed that the instance on which the method is called
                 // will be a parameter (the job object from the stream)
