@@ -4,7 +4,9 @@ import com.teamtreehouse.jobs.model.Job;
 import com.teamtreehouse.jobs.service.JobService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class App {
 
@@ -25,7 +27,45 @@ public class App {
 
   private static void explore(List<Job> jobs) {
     // Your amazing code below...
-    printPortlandJobsStream(jobs);
+    getThreeJuniorJobsStream(jobs).forEach(System.out::println);
+  }
+
+  private static boolean isJuniorJob(Job job) {
+    String title = job.getTitle();
+    return title.contains("junior") || title.contains("jr");
+  }
+
+  // "Senior Dev", "Jr. Java Engineer", "Java Evangelist", "Junior Java Dev",
+  // "Sr. Java Wizard Ninja", "Junior Java Wizard Ninja", "Full Stack Java Engineer"
+  private static List<Job> getThreeJuniorJobsStream(List<Job> jobs) {
+    return jobs.stream()
+            .filter(App::isJuniorJob)
+            .limit(3) //stateful short circuiting intermediate operation
+            .collect(Collectors.toList());
+
+    // Another option. This is an example of a method relying on a side effect
+//    List<Job> juniorJobs = new ArrayList<>();
+//    jobs.stream()
+//            .filter(App::isJuniorJob)
+//            .limit(3) //stateful short circuiting intermediate operation
+//            .forEach(juniorJobs::add);
+//            // this forEach requires something that's out of the stream (juniorJobs)
+//            // although it works, it's bad form, because it could be solved
+//            // without side effects
+//    return juniorJobs;
+  }
+
+  private static List<Job> getThreeJuniorJobsInmperatively(List<Job> jobs) {
+    List<Job> juniorJobs = new ArrayList<>();
+    for (Job job : jobs) {
+      if (isJuniorJob(job)) {
+        juniorJobs.add(job);
+        if (juniorJobs.size() >= 3) {
+          break;
+        }
+      }
+    }
+    return juniorJobs;
   }
 
   private static void printPortlandJobsImperatively(List<Job> jobs) {
