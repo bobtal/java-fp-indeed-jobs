@@ -31,7 +31,7 @@ public class App {
   }
 
   private static boolean isJuniorJob(Job job) {
-    String title = job.getTitle();
+    String title = job.getTitle().toLowerCase();
     return title.contains("junior") || title.contains("jr");
   }
 
