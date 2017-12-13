@@ -30,17 +30,17 @@ public class App {
 
     private static void explore(List<Job> jobs) {
         // Your amazing code below...
-        System.out.println(
-        jobs.stream()
-                .map(Job::getCompany)
-                .max(Comparator.comparingInt(String::length))
-//                .max(new Comparator<String>() {
-//                    @Override
-//                    public int compare(String o1, String o2) {
-//                        return o1.length() - o2.length();
-//                    }
-//                })
-        );
+        String searchTerm = "trampoline";
+        Optional<Job> foundJob = luckySearchJob(jobs, searchTerm);
+        System.out.println(foundJob
+        .map(Job::getTitle)
+        .orElse("No job found"));
+    }
+
+    private static Optional<Job> luckySearchJob(List<Job> jobs, String searchTerm) {
+        return jobs.stream()
+                    .filter(job -> job.getTitle().contains(searchTerm))
+                    .findFirst();
     }
 
     public static Map<String, Long> getSnippetWordCountsStream(List<Job> jobs) {
