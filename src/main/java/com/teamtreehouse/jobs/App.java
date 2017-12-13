@@ -30,11 +30,26 @@ public class App {
 
     private static void explore(List<Job> jobs) {
         // Your amazing code below...
-        String searchTerm = "trampoline";
-        Optional<Job> foundJob = luckySearchJob(jobs, searchTerm);
-        System.out.println(foundJob
-        .map(Job::getTitle)
-        .orElse("No job found"));
+        List<String> companies = jobs.stream()
+                .map(Job::getCompany)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+
+        displayCompaniesMenuUsingRange(companies);
+    }
+
+    private static void displayCompaniesMenuImperatively(List<String> companies) {
+        for (int i = 0; i < 20; i++) {
+            System.out.printf("%d. %s %n", i + 1, companies.get(i));
+        }
+    }
+
+    // declaratively
+    private static void displayCompaniesMenuUsingRange(List<String> companies) {
+        IntStream.rangeClosed(1, 20)
+                .mapToObj(i -> String.format("%d. %s", i, companies.get(i - 1)))
+                .forEach(System.out::println);
     }
 
     private static Optional<Job> luckySearchJob(List<Job> jobs, String searchTerm) {
