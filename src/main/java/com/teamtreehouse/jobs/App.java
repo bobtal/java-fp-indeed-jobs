@@ -4,10 +4,11 @@ import com.teamtreehouse.jobs.model.Job;
 import com.teamtreehouse.jobs.service.JobService;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class App {
 
@@ -28,7 +29,56 @@ public class App {
 
     private static void explore(List<Job> jobs) {
         // Your amazing code below...
-        getCaptionsStream(jobs).forEach(System.out::println);
+        getSnippetWordCountsImperatively(jobs)
+//                .forEach(new BiConsumer<String, Long>() {
+//                    @Override
+//                    public void accept(String s, Long aLong) {
+//                        System.out.printf("'%s' occurs %s times%n", s, aLong);
+//                    }
+//                });
+        .forEach((key, value) -> System.out.printf("'%s' occurs %s times%n", key, value));
+    }
+
+    public static Map<String, Long> getSnippetWordCountsStream(List<Job> jobs) {
+
+        return jobs.stream()
+                .map(Job::getSnippet) // same as map(job -> job.getSnippet())
+                // replacing a Job object with a String (the snippet)
+
+                .map(snippet -> snippet.split("\\W+"))
+                // replacing a snippet with an array of words
+
+                .flatMap(Stream::of) // same as words -> Stream.of(words)
+                // ^^ this will make the array words into a stream (flattening)
+                // so we don't get multiple "dimensions" in the initial stream so to speak
+
+                .filter(word -> word.length() > 0)
+                .map(String::toLowerCase) // same as word -> word.toLowerCase()
+                .collect(Collectors.groupingBy(
+                        Function.identity(), // instead of word -> word
+                        Collectors.counting()
+                ));
+    }
+
+    public static Map<String, Long> getSnippetWordCountsImperatively(List<Job> jobs) {
+
+        Map<String, Long> wordCounts = new HashMap<>();
+
+        for (Job job : jobs) {
+            String[] words = job.getSnippet().split("\\W+");
+            for (String word : words) {
+                if (word.length() == 0) {
+                    continue;
+                }
+                String lWord = word.toLowerCase();
+                Long count = wordCounts.get(lWord);
+                if (count == null) {
+                    count = 0L;
+                }
+                wordCounts.put(lWord, ++count);
+            }
+        }
+        return wordCounts;
     }
 
     private static boolean isJuniorJob(Job job) {
