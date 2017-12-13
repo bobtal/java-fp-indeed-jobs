@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class App {
@@ -29,14 +30,17 @@ public class App {
 
     private static void explore(List<Job> jobs) {
         // Your amazing code below...
-        getSnippetWordCountsImperatively(jobs)
-//                .forEach(new BiConsumer<String, Long>() {
+        System.out.println(
+        jobs.stream()
+                .map(Job::getCompany)
+                .max(Comparator.comparingInt(String::length))
+//                .max(new Comparator<String>() {
 //                    @Override
-//                    public void accept(String s, Long aLong) {
-//                        System.out.printf("'%s' occurs %s times%n", s, aLong);
+//                    public int compare(String o1, String o2) {
+//                        return o1.length() - o2.length();
 //                    }
-//                });
-        .forEach((key, value) -> System.out.printf("'%s' occurs %s times%n", key, value));
+//                })
+        );
     }
 
     public static Map<String, Long> getSnippetWordCountsStream(List<Job> jobs) {
