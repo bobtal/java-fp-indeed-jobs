@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -30,18 +31,36 @@ public class App {
 
     private static void explore(List<Job> jobs) {
         // Your amazing code below...
-        List<String> companies = jobs.stream()
-                .map(Job::getCompany)
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
+        Job firstOne = jobs.get(0);
+        System.out.println("First job: " + firstOne);
+        Predicate<Job> caJobChecker = job -> job.getState().equals("CA");
 
-        companies.stream()
-                // peek is (obviously) intermediate operation on streams
-                // accepts a consumer, and is mainly used for debugging
-                .peek(company -> System.out.println("=======>" + company))
-                .filter(company -> company.startsWith("N"))
-                .forEach(System.out::println);
+        Job caJob = jobs.stream()
+//                .filter(job -> job.getState().equals("CA"))
+                .filter(caJobChecker)
+                .findFirst()
+                .orElseThrow(NullPointerException::new);
+
+        emailIfMatches(firstOne, caJobChecker);
+//        emailIfMatches(caJob, caJobChecker);
+        // let's modify the call above to actually check for jobs in CA
+        // which are Junior level jobs by just adding
+        // "and" to our caJobChecker predicate.
+        // Note: isJuniorJob isn't a predicate function, it just matches the
+        // signature of the predicate function (accepts an object returns a boolean)
+        // which is why we are able to use it this way.
+        emailIfMatches(caJob, caJobChecker.and(App::isJuniorJob));
+
+    }
+
+    // method emailIfMatches is a Higher Order Function, because it accepts a
+    // function as a parameter
+    // we can pass any predicate to this method without ever touching the method
+    // implementation and it will check whatever we want to check...just WOW!!!
+    public static void emailIfMatches(Job job, Predicate<Job> checker) {
+        if (checker.test(job)) {
+            System.out.println("I am sending an email about " + job);
+        }
     }
 
     private static void displayCompaniesMenuImperatively(List<String> companies) {
