@@ -1,5 +1,6 @@
 package com.teamtreehouse.jobs;
 
+import com.google.api.client.util.DateTime;
 import com.teamtreehouse.jobs.model.Job;
 import com.teamtreehouse.jobs.service.JobService;
 
@@ -33,24 +34,28 @@ public class App {
 
     private static void explore(List<Job> jobs) {
         // Your amazing code below...
-        Function<String, LocalDateTime> indeedDateConverter =
-                dateString -> LocalDateTime.parse(
-                        dateString,
-                        DateTimeFormatter.RFC_1123_DATE_TIME);
 
-        // our boss wants the format "3 / 15 / 17"
+        Function<String, String> converter = createDateStringConverter(
+                DateTimeFormatter.RFC_1123_DATE_TIME,
+                DateTimeFormatter.ISO_DATE
+        );
 
-        Function<LocalDateTime, String> ourBossDateConverter =
-                date -> date.format(DateTimeFormatter.ofPattern("M / d / YY"));
-
-        Function<String, String> indeedToOurBossDateFormatConverter =
-                indeedDateConverter.andThen(ourBossDateConverter);
         jobs.stream()
                 .map(Job::getDateTimeString)
                 .limit(5)
-                .map(indeedToOurBossDateFormatConverter)
+                .map(converter)
                 .forEach(System.out::println);
 
+    }
+
+    public static Function<String, String> createDateStringConverter(
+            DateTimeFormatter inFormatter,
+            DateTimeFormatter outFormatter) {
+        int meaningOfLife = 42;
+        return dateString -> {
+            return meaningOfLife + "--------" + LocalDateTime.parse(dateString, inFormatter)
+                    .format(outFormatter);
+        };
     }
 
     // method emailIfMatches is a Higher Order Function, because it accepts a
