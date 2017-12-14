@@ -4,6 +4,8 @@ import com.teamtreehouse.jobs.model.Job;
 import com.teamtreehouse.jobs.service.JobService;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -31,25 +33,23 @@ public class App {
 
     private static void explore(List<Job> jobs) {
         // Your amazing code below...
-        Job firstOne = jobs.get(0);
-        System.out.println("First job: " + firstOne);
-        Predicate<Job> caJobChecker = job -> job.getState().equals("CA");
+        Function<String, LocalDateTime> indeedDateConverter =
+                dateString -> LocalDateTime.parse(
+                        dateString,
+                        DateTimeFormatter.RFC_1123_DATE_TIME);
 
-        Job caJob = jobs.stream()
-//                .filter(job -> job.getState().equals("CA"))
-                .filter(caJobChecker)
-                .findFirst()
-                .orElseThrow(NullPointerException::new);
+        // our boss wants the format "3 / 15 / 17"
 
-        emailIfMatches(firstOne, caJobChecker);
-//        emailIfMatches(caJob, caJobChecker);
-        // let's modify the call above to actually check for jobs in CA
-        // which are Junior level jobs by just adding
-        // "and" to our caJobChecker predicate.
-        // Note: isJuniorJob isn't a predicate function, it just matches the
-        // signature of the predicate function (accepts an object returns a boolean)
-        // which is why we are able to use it this way.
-        emailIfMatches(caJob, caJobChecker.and(App::isJuniorJob));
+        Function<LocalDateTime, String> ourBossDateConverter =
+                date -> date.format(DateTimeFormatter.ofPattern("M / d / YY"));
+
+        Function<String, String> indeedToOurBossDateFormatConverter =
+                indeedDateConverter.andThen(ourBossDateConverter);
+        jobs.stream()
+                .map(Job::getDateTimeString)
+                .limit(5)
+                .map(indeedToOurBossDateFormatConverter)
+                .forEach(System.out::println);
 
     }
 
